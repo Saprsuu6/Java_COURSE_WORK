@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Singleton
 public class UserServlet extends HttpServlet {
@@ -47,14 +48,19 @@ public class UserServlet extends HttpServlet {
         if (authUser == null) {
             out.write("You have to log in or sing up");
         } else {
-            if (user != null) {
-                res = userDAO.deleteEntity(user);
+            if ((authUser.getRole().equals("User") || authUser.getRole().equals("Subscriber"))
+                    && !authUser.getLogin().equals((userLogin))) {
+                out.write("You may delete only yours account");
             } else {
-                if (userLogin == null) {
-                    out.write("You have to set user login");
+                if (user != null) {
+                    res = userDAO.deleteEntity(user);
                 } else {
-                    User currentUser = userDAO.getUserByLogin(userLogin);
-                    res = userDAO.deleteEntity(currentUser);
+                    if (userLogin == null) {
+                        out.write("You have to set user login");
+                    } else {
+                        User currentUser = userDAO.getUserByLogin(userLogin);
+                        res = userDAO.deleteEntity(currentUser);
+                    }
                 }
             }
         }
