@@ -19,7 +19,7 @@ public class UserDAO
 
     @Inject
     public UserDAO(Connection connection, Sha1HashService hashService,
-                   RoleDAO roleDAO){
+                   RoleDAO roleDAO) {
         super(connection);
         this.hashService = hashService;
         this.roleDAO = roleDAO;
@@ -48,7 +48,7 @@ public class UserDAO
             prep.setString(3, passHash);
             prep.setString(4, user.getName());
             prep.setString(5, salt);
-            prep.setString(6, user.getRole());
+            prep.setInt(6, Integer.parseInt(user.getRole()));
             prep.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("UserDAO::addUser " + ex.getMessage());
@@ -94,7 +94,11 @@ public class UserDAO
         try (PreparedStatement prep = connection.prepareStatement(sql.toString())) {
             int n = 1;
             for (String fieldName : data.keySet()) {
-                prep.setString(n, data.get(fieldName));
+                if (fieldName.equals("Role")) {
+                    prep.setInt(n, Integer.parseInt(data.get(fieldName)));
+                } else {
+                    prep.setString(n, data.get(fieldName));
+                }
                 ++n;
             }
 

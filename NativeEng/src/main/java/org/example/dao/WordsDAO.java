@@ -136,6 +136,29 @@ public class WordsDAO
     }
 
     /**
+     * Get all words in table words
+     * @return List<Entity> or null
+     */
+    public List<Entity> getAllIdioms() {
+        String sql = "SELECT i.* FROM Words";
+        try (PreparedStatement prep = connection.prepareStatement(sql)) {
+            ResultSet res = prep.executeQuery();
+            List<Entity> idiomList = new ArrayList<>();
+
+            while (res.next()) {
+                Word word = new Word(res);
+                idiomList.add(word);
+            }
+
+            return idiomList;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            System.out.println(sql);
+        }
+        return null;
+    }
+
+    /**
      * To get user word from table Words
      *
      * @param user to set user id in query
@@ -202,7 +225,7 @@ public class WordsDAO
             if (res.next()) {
                 Word word = new Word(res);
                 String userId = res.getString("User_id");
-                //word.setUser(userDAO.getUserById(userId));
+                word.setUser(userDAO.getUserById(userId));
 
                 return word;
             }

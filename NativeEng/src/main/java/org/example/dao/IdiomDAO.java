@@ -112,7 +112,7 @@ public class IdiomDAO
 
         String sql = "DELETE FROM Idioms WHERE id=?";
         try (PreparedStatement prep = connection.prepareStatement(sql)) {
-            prep.setString(1, idiom.getUser().getId());
+            prep.setString(1, idiom.getId());
             return prep.execute();
         } catch (SQLException ex) {
             System.out.println("IdiomDAO::deleteIdiom " + ex.getMessage());
@@ -132,6 +132,29 @@ public class IdiomDAO
     public boolean isEntityUsed(String criterion) {
         String sql = "SELECT COUNT(i.`Id`) FROM Idioms i WHERE i.`Idiom`=?";
         return !super.isUsed(sql, criterion);
+    }
+
+    /**
+     * Get all idioms in table Idioms
+     * @return List<Entity> or null
+     */
+    public List<Entity> getAllIdioms() {
+        String sql = "SELECT i.* FROM Idioms";
+        try (PreparedStatement prep = connection.prepareStatement(sql)) {
+            ResultSet res = prep.executeQuery();
+            List<Entity> idiomList = new ArrayList<>();
+
+            while (res.next()) {
+                Idiom idiom = new Idiom(res);
+                idiomList.add(idiom);
+            }
+
+            return idiomList;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            System.out.println(sql);
+        }
+        return null;
     }
 
     /**

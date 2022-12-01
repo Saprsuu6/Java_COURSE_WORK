@@ -41,23 +41,28 @@ public class Word
         return user;
     }
 
-    public void setId(String id) {
+    public Word setId(String id) {
         this.id = id;
+        return this;
     }
 
-    public void setWord(String idiom) {
+    public Word setWord(String idiom) {
         this.word = idiom;
+        return this;
     }
 
-    public void setTranslate(String translate) {
+    public Word setTranslate(String translate) {
         this.translate = translate;
+        return this;
     }
 
-    public void setExample(String example) {
+    public Word setExample(String example) {
         this.example = example;
+        return this;
     }
 
-    public void setUser(User user) {
+    public Word setUser(User user) {
         this.user = user;
+        return this;
     }
 }

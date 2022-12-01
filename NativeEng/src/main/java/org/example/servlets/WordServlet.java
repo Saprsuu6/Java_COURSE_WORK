@@ -1,17 +1,25 @@
 package org.example.servlets;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.example.dao.DAO;
 import org.example.dao.UserDAO;
 import org.example.dao.WordsDAO;
+import org.example.entities.Entity;
+import org.example.entities.Idiom;
+import org.example.entities.User;
+import org.example.entities.Word;
 
 import javax.inject.Named;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 @Singleton
 public class WordServlet
@@ -25,21 +33,157 @@ public class WordServlet
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+        HttpSession session = req.getSession();
+        User authUser = (User) session.getAttribute("authUser");
+        PrintWriter out = resp.getWriter();
+
+        if (authUser == null) {
+            out.write("You have to log in or sing up");
+        } else {
+            String word = req.getParameter("word");
+
+            Word forDelete = wordsDAO.getWordByContext(word);
+            out.write(wordsDAO.deleteEntity(forDelete)
+                    ? "Successfully delete word"
+                    : "Unsuccessfully delete word");
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+        HttpSession session = req.getSession();
+        User authUser = (User) session.getAttribute("authUser");
+        PrintWriter out = resp.getWriter();
+
+        if (authUser == null) {
+            out.write("You have to log in or sing up");
+        } else {
+            String word = req.getParameter("word");
+            Word forUpdate = wordsDAO.getWordByContext(word);
+            String reply;
+
+            String newWord = req.getParameter("newWord");
+            String translate = req.getParameter("translate");
+            String example = req.getParameter("example");
+
+            if (newWord != null) {
+                if (wordsDAO.isEntityUsed(newWord)) {
+                    out.write("Idiom '" + newWord + "' already in use");
+                } else {
+                    forUpdate.setWord(newWord);
+                }
+            }
+
+            forUpdate.setTranslate(translate);
+            forUpdate.setExample(example);
+
+            if (wordsDAO.updateEntity(forUpdate)) {
+                reply = "Successfully update";
+            } else {
+                reply = "Update error";
+            }
+
+            out.write(reply);
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        HttpSession session = req.getSession();
+        User authUser = (User) session.getAttribute("authUser");
+        PrintWriter out = resp.getWriter();
+
+        if (authUser == null) {
+            out.write("You have to log in or sing up");
+        } else {
+            String word = req.getParameter("word");
+            String translate = req.getParameter("translate");
+            String example = req.getParameter("example");
+
+            String errorMessage = null;
+            try {
+                // region Data validation
+                if (word == null || word.isEmpty()) {
+                    throw new Exception("Word could not be empty");
+                }
+                if (!word.equals(word.trim())) {
+                    throw new Exception("Word could not contain trailing spaces");
+                }
+                if (wordsDAO.isEntityUsed(word)) {
+                    throw new Exception("Word is already in use");
+                }
+                if (translate == null || translate.isEmpty()) {
+                    throw new Exception("Translate could not be empty");
+                }
+                if (!translate.equals(translate.trim())) {
+                    throw new Exception("Translate could not contain trailing spaces");
+                }
+                if (example == null || example.isEmpty()) {
+                    throw new Exception("Example could not be empty");
+                }
+                if (!example.equals(example.trim())) {
+                    throw new Exception("Example could not contain trailing spaces");
+                }
+                // endregion
+
+                Word newWord = new Word();
+                newWord.setWord(word)
+                        .setTranslate(translate)
+                        .setExample(example)
+                        .setUser(authUser);
+
+                String id = wordsDAO.addEntity(newWord);
+
+                if (id == null) {
+                    throw new Exception("Server error, try later");
+                } else {
+                    out.write("Successful add");
+                }
+            } catch (Exception exception) {
+                errorMessage = exception.getMessage();
+                out.write(errorMessage);
+            }
+        }
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doGet(req, resp);
+        HttpSession session = req.getSession();
+        User authUser = (User) session.getAttribute("authUser");
+        PrintWriter out = resp.getWriter();
+
+        if (authUser == null) {
+            out.write("You have to log in or sing up");
+        } else {
+            String word = null;
+
+            if (req.getAttribute("word") != null) {
+                word = (String) req.getAttribute("word");
+            } else if (req.getParameter("word") != null) {
+                word = req.getParameter("word");
+            }
+
+            if (word == null) {
+                List<Entity> idiomsList = wordsDAO.getAllIdioms();
+                getResponse(idiomsList, resp);
+            } else {
+                Word currentWord = wordsDAO.getWordByContext(word);
+                if (currentWord != null) {
+                    getResponse(currentWord, resp);
+                } else {
+                    out.write("Such word did not find");
+                }
+            }
+        }
+    }
+
+    private void getResponse(Object content, HttpServletResponse resp) throws IOException {
+        PrintWriter out = resp.getWriter();
+
+        String jsonRes = new Gson().toJson(content);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        out.write(jsonRes);
+        out.flush();
     }
 }
