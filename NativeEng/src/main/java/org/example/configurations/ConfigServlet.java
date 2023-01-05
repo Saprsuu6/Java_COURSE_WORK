@@ -8,8 +8,8 @@ public class ConfigServlet extends ServletModule {
     protected void configureServlets() {
         //serve("*").with(ErrorServlet.class);
         serve("/").with(HomeServlet.class);
-        serve("/user/").with(UserServlet.class);
+        //serve("/user/").with(UserServlet.class);
         serve("/word/").with(WordServlet.class);
-        serve("/idiom/").with(IdiomServlet.class);
+        //serve("/idiom/").with(IdiomServlet.class);
     }
 }

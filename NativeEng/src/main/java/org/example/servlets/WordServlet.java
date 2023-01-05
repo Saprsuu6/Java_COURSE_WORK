@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.example.dao.DAO;
-import org.example.dao.UserDAO;
 import org.example.dao.WordsDAO;
 import org.example.entities.Entity;
-import org.example.entities.Idiom;
 import org.example.entities.User;
 import org.example.entities.Word;
 

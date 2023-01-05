@@ -35,8 +35,8 @@ public class ConfigModule
     @Override
     protected void configure() {
         bind(HashService.class).to(Sha1HashService.class);
-        bind(DAO.class).annotatedWith(Names.named("userDAO")).to(UserDAO.class);
-        bind(DAO.class).annotatedWith(Names.named("idiomDAO")).to(IdiomDAO.class);
+        //bind(DAO.class).annotatedWith(Names.named("userDAO")).to(UserDAO.class);
+        //bind(DAO.class).annotatedWith(Names.named("idiomDAO")).to(IdiomDAO.class);
         bind(DAO.class).annotatedWith(Names.named("wordDAO")).to(WordsDAO.class);
     }
 

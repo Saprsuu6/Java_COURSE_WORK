@@ -1,12 +1,9 @@
 package org.example.dao;
 
-import org.example.entities.Entity;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractDAO{

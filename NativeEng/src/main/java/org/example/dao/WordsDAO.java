@@ -2,7 +2,6 @@ package org.example.dao;
 
 import com.google.inject.Inject;
 import org.example.entities.Entity;
-import org.example.entities.Idiom;
 import org.example.entities.User;
 import org.example.entities.Word;
 
